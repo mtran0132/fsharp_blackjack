@@ -125,7 +125,7 @@ let newGame () =
 // Given a current game state and an indication of which player is "hitting", deal one
 // card from the deck and add it to the given person's hand. Return the new game state.
 let hit (handOwner : HandOwner) (gameState : GameState) = // these type annotations are for your benefit, not the compiler
-
+    
     // TODO: take the top (first) card from the gameState's deck and cons it onto the hand
     // for whichever person is identified by "handOwner". 
     // Return the new game state, *including* new the deck with the top card removed.
