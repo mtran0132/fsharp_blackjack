@@ -19,16 +19,19 @@ type HandOwner =
     | Player
     | Dealer
 
-
 // UTILITY METHODS
 
 // Returns a string describing a card.
 let cardToString card =
-    // TODO: replace the following line with logic that converts the card's kind to a string.
+    // DONE: replace the following line with logic that converts the card's kind to a string.
     // Reminder: a 1 means "Ace", 11 means "Jack", 12 means "Queen", 13 means "King".
     // A "match" statement will be necessary. (The next function below is a hint.)
-    let kind = string card.kind
-
+    let kind = match string card.kind with
+               | "1"  -> "Ace"
+               | "11" -> "Jack"
+               | "12" -> "Queen"
+               | "13" -> "King"
+               | n -> string n
 
     // "%A" can print any kind of object, and automatically converts a union (like CardSuit)
     // into a simple string.
@@ -48,15 +51,21 @@ let cardValue card =
 // Find the sum of the card values of each card in the hand. If that sum
 // exceeds 21, and the hand has aces, then some of those aces turn from 
 // a value of 11 to a value of 1, and a new total is computed.
-// TODO: fill in the marked parts of this function.
+// DONE: fill in the marked parts of this function.
 let handTotal hand =
-    // TODO: modify the next line to calculate the sum of the card values of each
-    // card in the list. Hint: List.map and List.sum. (Or, if you're slick, List.sumBy)
-    let sum = 0
 
-    // TODO: modify the next line to count the number of aces in the hand.
+    // DONE: modify the next line to calculate the sum of the card values of each
+    // card in the list. Hint: List.map and List.sum. (Or, if you're slick, List.sumBy)
+    let sum = hand
+                |> List.map cardValue
+                |> List.sum
+ 
+    // DONE: modify the next line to count the number of aces in the hand.
     // Hint: List.filter and List.length. 
-    let numAces = 0
+    let numAces = hand
+                |> List.map(cardValue)
+                |> List.filter(fun x -> x = 1)
+                |> List.length
 
     // Adjust the sum if it exceeds 21 and there are aces.
     if sum <= 21 then
@@ -117,21 +126,32 @@ let newGame () =
     let dealer = [deck.Tail.Head ; deck.Tail.Tail.Tail.Head] // Second and fourth.
 
     // Return a fresh game state.
-    {playerHand = player; 
-     dealerHand = dealer; 
-     deck = List.skip 4 deck}
+    {   
+        deck = List.skip 4 deck;
+        playerHand = player; 
+        dealerHand = dealer; 
+     }
 
 
 // Given a current game state and an indication of which player is "hitting", deal one
 // card from the deck and add it to the given person's hand. Return the new game state.
 let hit (handOwner : HandOwner) (gameState : GameState) = // these type annotations are for your benefit, not the compiler
-    
     // TODO: take the top (first) card from the gameState's deck and cons it onto the hand
     // for whichever person is identified by "handOwner". 
     // Return the new game state, *including* new the deck with the top card removed.
     
-    // TODO: this is just so the code compiles; fix it.
-    gameState
+    match handOwner with
+    | Player -> {
+                 deck = gameState.deck.Tail; 
+                 playerHand = gameState.deck.Head::gameState.playerHand;
+                 dealerHand = gameState.dealerHand
+                 }
+
+    | Dealer -> {
+                deck = gameState.deck.Tail;
+                playerHand = gameState.playerHand;
+                dealerHand = gameState.deck.Head::gameState.dealerHand
+                }
 
 // Take the dealer's turn by repeatedly taking a single action, hit or stay, until 
 // the dealer busts or stays.
@@ -185,7 +205,7 @@ let rec playerTurn (playerStrategy : GameState->bool) (gameState : GameState) =
 let oneGame playerStrategy gameState =
     // TODO: print the first card in the dealer's hand to the screen, because the Player can see
     // one card from the dealer's hand in order to make their decisions.
-    printfn "Dealer is showing: %A" 0 // fix this line
+    printfn "Dealer is showing: %s" (cardToString gameState.dealerHand.Head) // fix this line
 
     // TODO: play the game! First the player gets their turn. The dealer then takes their turn,
     // using the state of the game after the player's turn finished.
