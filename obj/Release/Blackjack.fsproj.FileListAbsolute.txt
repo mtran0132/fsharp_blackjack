@@ -1,0 +1,10 @@
+D:\Users\Mtran0132\Documents\CSULB\Fall 2018\CECS424\Blackjack\bin\Release\Blackjack.exe.config
+D:\Users\Mtran0132\Documents\CSULB\Fall 2018\CECS424\Blackjack\bin\Release\Blackjack.XML
+D:\Users\Mtran0132\Documents\CSULB\Fall 2018\CECS424\Blackjack\bin\Release\Blackjack.exe
+D:\Users\Mtran0132\Documents\CSULB\Fall 2018\CECS424\Blackjack\bin\Release\Blackjack.pdb
+D:\Users\Mtran0132\Documents\CSULB\Fall 2018\CECS424\Blackjack\bin\Release\FSharp.Core.dll
+D:\Users\Mtran0132\Documents\CSULB\Fall 2018\CECS424\Blackjack\bin\Release\System.ValueTuple.dll
+D:\Users\Mtran0132\Documents\CSULB\Fall 2018\CECS424\Blackjack\bin\Release\FSharp.Core.xml
+D:\Users\Mtran0132\Documents\CSULB\Fall 2018\CECS424\Blackjack\obj\Release\Blackjack.fsproj.CopyComplete
+D:\Users\Mtran0132\Documents\CSULB\Fall 2018\CECS424\Blackjack\obj\Release\Blackjack.exe
+D:\Users\Mtran0132\Documents\CSULB\Fall 2018\CECS424\Blackjack\obj\Release\Blackjack.pdb

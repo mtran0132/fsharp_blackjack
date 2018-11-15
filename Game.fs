@@ -1,4 +1,7 @@
-﻿// An "enum"-type union for card suit.
+﻿open System.Diagnostics
+open System
+
+// An "enum"-type union for card suit.
 type CardSuit = 
     | Spades 
     | Clubs
@@ -23,9 +26,6 @@ type HandOwner =
 
 // Returns a string describing a card.
 let cardToString card =
-    // DONE: replace the following line with logic that converts the card's kind to a string.
-    // Reminder: a 1 means "Ace", 11 means "Jack", 12 means "Queen", 13 means "King".
-    // A "match" statement will be necessary. (The next function below is a hint.)
     let kind = match string card.kind with
                | "1"  -> "Ace"
                | "11" -> "Jack"
@@ -46,22 +46,12 @@ let cardValue card =
                 | n -> n
     value
 
-
-// Calculates the total point value of the given hand (Card list). 
-// Find the sum of the card values of each card in the hand. If that sum
-// exceeds 21, and the hand has aces, then some of those aces turn from 
-// a value of 11 to a value of 1, and a new total is computed.
-// DONE: fill in the marked parts of this function.
 let handTotal hand =
 
-    // DONE: modify the next line to calculate the sum of the card values of each
-    // card in the list. Hint: List.map and List.sum. (Or, if you're slick, List.sumBy)
     let sum = hand
                 |> List.map cardValue
                 |> List.sum
  
-    // DONE: modify the next line to count the number of aces in the hand.
-    // Hint: List.filter and List.length. 
     let numAces = hand
                 |> List.map(cardValue)
                 |> List.filter(fun x -> x = 1)
@@ -83,6 +73,7 @@ let handTotal hand =
 // Creates a new, unshuffled deck of 52 cards.
 // A function with no parameters is indicated by () in the parameter list. It is also invoked
 // with () as the argument.
+
 let makeDeck () =
     // Make a deck by calling this anonymous function 52 times, each time incrementing
     // the parameter 'i' by 1.
@@ -136,8 +127,6 @@ let newGame () =
 // Given a current game state and an indication of which player is "hitting", deal one
 // card from the deck and add it to the given person's hand. Return the new game state.
 let hit (handOwner : HandOwner) (gameState : GameState) = // these type annotations are for your benefit, not the compiler
-    // TODO: take the top (first) card from the gameState's deck and cons it onto the hand
-    // for whichever person is identified by "handOwner". 
     // Return the new game state, *including* new the deck with the top card removed.
     
     match handOwner with
@@ -159,20 +148,16 @@ let rec dealerTurn gameState =
     let dealer = gameState.dealerHand
     let score = handTotal dealer
 
-    // TODO: the following line prints the cards in the dealer's hand, but with ugly output
-    // because F# doesn't know how to format a Card variable for output. Transform each card
-    // in the dealer's hand into a string using cardToString and use those for output.
-    // Hint: List.map
-    printfn "Dealer's hand: %A; %d points" dealer score
+    printfn "Dealer's hand: %A; %d points" (List.map cardToString dealer) score
     
     // Dealer rules: must hit if score < 17.
     if score > 21 then
-        printfn "Dealer busts!"
+        printfn "Dealer busts!\n"
         // The game state is unchanged because we did not hit. 
         // The dealer does not get to take another action.
         gameState
     elif score < 17 then
-        printfn "Dealer hits"
+        printfn "Dealer hits\n"
         // The game state is changed; the result of "hit" is the new state.
         // The dealer gets to take another action using the new state.
         gameState
@@ -181,64 +166,68 @@ let rec dealerTurn gameState =
     else
         // The game state is unchanged because we did not hit. 
         // The dealer does not get to take another action.
-        printfn "Dealer must stay"
+        printfn "Dealer must stay\n"
         gameState
 
 // Take the player's turn by repeatedly taking a single action until they bust or stay.
 let rec playerTurn (playerStrategy : GameState->bool) (gameState : GameState) =
-    // TODO: code this method using dealerTurn as a guide. Follow the same standard
-    // of printing output. This function must return the new game state after the player's
-    // turn has finished, like dealerTurn.
+    let player = gameState.playerHand
+    let score = handTotal player
 
-    // Unlike the dealer, the player gets to make choices about whether they will hit or stay.
-    // The "elif score < 17" code from dealerTurn is inappropriate; in its place, we will
-    // allow a "strategy" to decide whether to hit. A "strategy" is a function that accepts
-    // the current game state and returns true if the player should hit, and false otherwise.
-    // playerTurn must call that function (the parameter playerStrategy) to decide whether
-    // to hit or stay.
+    printfn "Player's hand: %A; %d points" (List.map cardToString player) score
 
+    if score > 21 then
+        printfn "Player busts!\n"
+        gameState
 
-    // The next line is just so the code compiles. Remove it when you code the function.
-    gameState
+    elif (playerStrategy gameState) then
+        gameState
+        |> hit Player
+        |> playerTurn playerStrategy
+    else
+        printfn "Player must stay\n"
+        gameState
 
 // Plays one game with the given player strategy. Returns a GameLog recording the winner of the game.
 let oneGame playerStrategy gameState =
-    // TODO: print the first card in the dealer's hand to the screen, because the Player can see
-    // one card from the dealer's hand in order to make their decisions.
-    printfn "Dealer is showing: %s" (cardToString gameState.dealerHand.Head) // fix this line
 
-    // TODO: play the game! First the player gets their turn. The dealer then takes their turn,
-    // using the state of the game after the player's turn finished.
+    printfn "Dealer is showing: %s" (cardToString gameState.dealerHand.Head)
 
+    let oneTurnGame = playerTurn playerStrategy gameState
+                      |> dealerTurn
 
+    let playerScore = handTotal oneTurnGame.playerHand 
+    let dealerScore = handTotal oneTurnGame.dealerHand
 
-    // TODO: determine the winner! Get the hand scores for the dealer and the player.
-    // The player wins if they did not bust (score <= 21) AND EITHER:
-    //                                                        - the dealer busts; or
-    //                                                        - player's score > dealer's score
-    // If neither side busts and they have the same score, the result is a "draw".
-    // Return a GameLog object with a value of 1 for the correct winner.
-
-    // TODO: this is a "blank" GameLog. Return something more appropriate for each of the outcomes
-    // described above.
-    {playerWins = 0; dealerWins = 0; draws = 0}
-
+    if (playerScore <= 21) && (dealerScore > 21 || playerScore > dealerScore) then
+        printfn "++++ Player Wins ++++\n"
+        {playerWins = 1; dealerWins = 0; draws = 0}
+    
+    elif(playerScore = dealerScore) then
+        printfn "==== Draw! ====\n"
+        {playerWins = 0; dealerWins = 0; draws = 1}
+    
+    else
+        printfn "---- Dealer Wins ----\n"
+        {playerWins = 0; dealerWins = 1; draws = 0}
+   
 // Recursively plays n games using the given playerStrategy.
 let manyGames n playerStrategy =
     // This tail-recursive helper implements the manyGames logic.
     let rec manyGamesTail n playerStrategy logSoFar =
-        // TODO: construct a new game using newGame ().
-        // Then play that game using oneGame.
-        // Take the result of that and combine it with the logSoFar, by summing the playerWins, dealerWins, and draws
-        // from the result and from the logSoFar.
-        // If this is the last game (n = 1), then the combined log is the answer.
-        // Otherwise, the combined log becomes the new logSoFar in a recursive call to manyGamesTail,
-        // with n reduced by 1.
 
-        // TODO: this is a "blank" GameLog. Return something more appropriate.
-        {playerWins = 0; dealerWins = 0; draws = 0}
+        if n = 1 then
+            logSoFar
+        else
+            let log = newGame()
+                        |> oneGame playerStrategy
 
-    // Start the tail recursion with a blank logSoFar.
+            manyGamesTail (n-1) playerStrategy {
+                                                playerWins = logSoFar.playerWins + log.playerWins; 
+                                                dealerWins = logSoFar.dealerWins + log.dealerWins; 
+                                                draws = logSoFar.draws + log.draws
+                                                }
+                                                
     manyGamesTail n playerStrategy {playerWins = 0; dealerWins = 0; draws = 0}
             
 
@@ -249,10 +238,37 @@ let interactivePlayerStrategy gameState =
     // Return true if they entered "y", false otherwise.
     answer = "y"
 
+// Player never hits
+let inactivePlayerStrategy gameState =
+    false
+
+// Player hits only when less than 15
+let cautiousPlayerStrategy gameState = 
+    let player = gameState.playerHand
+    let score = handTotal player
+
+    // Hit if score is below 15
+    score < 15
+
+// Player hits unless score is 21 or greater
+let greedyPlayerStrategy gameState = 
+    let player = gameState.playerHand
+    let score = handTotal player
+    
+    // Hit if score is below 21
+    score < 21
+
+let coinFlipPlayerStrategy gameState = 
+    rand.Next(2) = 1
+    
 [<EntryPoint>]
 let main argv =
-    
+    let numGames = 1000
+    let results = manyGames numGames inactivePlayerStrategy
+    printfn "Inactive Player Strategy\n"
+    printfn "Player win: %.2f%%, %d/%d" ((float results.playerWins / float numGames) * float 100) results.playerWins numGames
+    printfn "Dealer win: %.2f%%, %d/%d" ((float results.dealerWins / float numGames) * float 100) results.dealerWins numGames
+    printfn "Draws:      %.2f%%, %d/%d" ((float results.draws      / float numGames) * float 100) results.draws numGames
 
-    // manyGames 1000 (fun x -> handTotal x.playerHand < 16)
-    // |> printfn "%A"
+    Console.ReadKey() |> ignore
     0 // return an integer exit code
